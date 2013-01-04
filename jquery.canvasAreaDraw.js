@@ -1,6 +1,6 @@
 (function( $ ){
-  
-  var $input, methods, $modal, $canvas, ctx, $overlay, image, points;
+
+  var $input, methods, $modal, $canvas, ctx, $overlay, image, points, activePoint;
 
   $.fn.canvasAreaDraw = function(method) {
 
@@ -35,6 +35,7 @@
         $close.click(methods.hide);
         $canvas.bind('mousedown', methods.draw);
         $canvas.bind('contextmenu', methods.reset);
+        $canvas.bind('mouseup', methods.stopDrag);
 
         $close.css({
           position: 'absolute',
@@ -86,7 +87,7 @@
       if ($input.val().length > 0) {
         points = $input.val().split(',');
       } else points = [];
-      
+
       if (!settings.imageUrl) {
         $.error('No image url provided for canvasAreaDrawModal.show.');
       }
@@ -105,7 +106,7 @@
       $canvas.attr('width', this.width)
         .attr('height', this.height);
       ctx = $canvas[0].getContext('2d');
-      
+
       methods.draw();
 
       var top, left;
@@ -135,6 +136,21 @@
       $input.val(points.join(','));
     },
 
+    move: function(e) {
+      if(!e.offsetX) {
+        e.offsetX = (e.pageX - $(e.target).offset().left);
+        e.offsetY = (e.pageY - $(e.target).offset().top);
+      }
+      points[activePoint] = e.offsetX;
+      points[activePoint+1] = e.offsetY;
+      methods.draw.apply(this);
+    },
+
+    stopDrag: function() {
+      $(this).unbind('mousemove');
+      activePoint = null;
+    },
+
     draw: function(e) {
       if (e) {
         e.preventDefault();
@@ -146,22 +162,39 @@
           e.offsetY = (e.pageY - $(e.target).offset().top);
         }
         var x = e.offsetX, y = e.offsetY;
-        points.push(x, y);
+        var dis, lineDis, insertAt = points.length;
+        for (var i = 0; i < points.length; i+=2) {
+          dis = Math.sqrt(Math.pow(x - points[i], 2) + Math.pow(y - points[i+1], 2));
+          if ( dis < 6 ) {
+            activePoint = i;
+            $(this).bind('mousemove', methods.move);
+            return false;
+          }
+          if (i > 1) {
+            lineDis = dotLineLength(x, y, points[i], points[i+1], points[i-2], points[i-1], true);
+            if (lineDis < 6) {
+              insertAt = i;
+            }
+          }
+        }
+        points.splice(insertAt, 0, x, y);
+        activePoint = insertAt;
+        $(this).bind('mousemove', methods.move);
       }
-      
+
       ctx.drawImage(image,0,0);
 
       if (points.length < 2) {
         return false;
       }
-      
+
       ctx.fillStyle = ctx.strokeStyle = 'rgb(200,30,30)';
       ctx.lineWidth = 2;
 
       ctx.beginPath();
       ctx.moveTo(points[0], points[1]);
       for (var i = 0; i < points.length; i+=2) {
-        ctx.fillRect(points[i]-2, points[i+1]-2, 4, 4);
+        ctx.fillRect(points[i]-4, points[i+1]-4, 8, 8);
         if (points.length > 2 && i > 1) {
           ctx.lineTo(points[i], points[i+1]);
         }
@@ -173,6 +206,7 @@
 
       methods.record();
 
+
       return false;
     }
 
@@ -180,4 +214,23 @@
   $(document).ready(function() {
     $('input.canvas-area[data-image-url]').canvasAreaDraw();
   });
+
+  var dotLineLength = function(x, y, x0, y0, x1, y1, o) {
+    function lineLength(x, y, x0, y0){
+      return Math.sqrt((x -= x0) * x + (y -= y0) * y);
+    }
+    if(o && !(o = function(x, y, x0, y0, x1, y1){
+      if(!(x1 - x0)) return {x: x0, y: y};
+      else if(!(y1 - y0)) return {x: x, y: y0};
+      var left, tg = -1 / ((y1 - y0) / (x1 - x0));
+      return {x: left = (x1 * (x * tg - y + y0) + x0 * (x * - tg + y - y1)) / (tg * (x1 - x0) + y0 - y1), y: tg * left - tg * x + y};
+    }(x, y, x0, y0, x1, y1), o.x >= Math.min(x0, x1) && o.x <= Math.max(x0, x1) && o.y >= Math.min(y0, y1) && o.y <= Math.max(y0, y1))){
+      var l1 = lineLength(x, y, x0, y0), l2 = lineLength(x, y, x1, y1);
+      return l1 > l2 ? l2 : l1;
+    }
+    else {
+      var a = y0 - y1, b = x1 - x0, c = x0 * y1 - y0 * x1;
+      return Math.abs(a * x + b * y + c) / Math.sqrt(a * a + b * b);
+    }
+  };
 })( jQuery );
