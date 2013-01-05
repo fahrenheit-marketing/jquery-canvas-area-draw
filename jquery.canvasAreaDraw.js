@@ -1,6 +1,6 @@
 (function( $ ){
 
-  var $input, methods, $modal, $canvas, ctx, $overlay, image, points, activePoint;
+  var $input, methods, $modal, $canvas, ctx, $overlay, image, points, activePoint, dblclick;
 
   $.fn.canvasAreaDraw = function(method) {
 
@@ -21,10 +21,11 @@
         // create modal
         $overlay = $('<div id="canvasAreaDrawOverlay"/>');
         $modal = $('<div id="canvasAreaDrawModal"/>');
-        $close = $('<a id="canvasAreaDrawModalClose" href="#">X</a>');
+        var $close = $('<a id="canvasAreaDrawModalClose" href="#">X</a>');
+        var $reset = $('<a id="canvasAreaDrawModalClose" href="#">CLEAR</a>');
         $canvas = $('<canvas>');
         $overlay.hide(); $modal.hide();
-        $modal.append( $canvas, $close );
+        $modal.append( $canvas, $close, $reset );
         image = new Image();
         $(image).load(methods.imageLoaded);
 
@@ -33,10 +34,27 @@
         });
 
         $close.click(methods.hide);
-        $canvas.bind('mousedown', methods.draw);
-        $canvas.bind('contextmenu', methods.reset);
+        $reset.click(methods.reset);
+        $canvas.bind('mousedown', methods.click);
+        $canvas.bind('contextmenu', methods.rightClick);
         $canvas.bind('mouseup', methods.stopDrag);
 
+        $reset.css({
+          position: 'absolute',
+          display: 'block',
+          left: '0',
+          'margin-left': '-8px',
+          top: '0',
+          'margin-top': '-8px',
+          padding: '4px',
+          background: '#000',
+          color: '#FFF',
+          'border-radius': '5px',
+          height: '15px',
+          'font-size': '13px',
+          'text-align': 'center',
+          'text-decoration': 'none'
+        });
         $close.css({
           position: 'absolute',
           display: 'block',
@@ -151,37 +169,58 @@
       activePoint = null;
     },
 
-    draw: function(e) {
-      if (e) {
-        e.preventDefault();
-        if (e.which == 3) {
-          return methods.reset.apply(this, e);
-        }
-        if(!e.offsetX) {
-          e.offsetX = (e.pageX - $(e.target).offset().left);
-          e.offsetY = (e.pageY - $(e.target).offset().top);
-        }
-        var x = e.offsetX, y = e.offsetY;
-        var dis, lineDis, insertAt = points.length;
-        for (var i = 0; i < points.length; i+=2) {
-          dis = Math.sqrt(Math.pow(x - points[i], 2) + Math.pow(y - points[i+1], 2));
-          if ( dis < 6 ) {
-            activePoint = i;
-            $(this).bind('mousemove', methods.move);
-            return false;
-          }
-          if (i > 1) {
-            lineDis = dotLineLength(x, y, points[i], points[i+1], points[i-2], points[i-1], true);
-            if (lineDis < 6) {
-              insertAt = i;
-            }
-          }
-        }
-        points.splice(insertAt, 0, x, y);
-        activePoint = insertAt;
-        $(this).bind('mousemove', methods.move);
+    rightClick: function(e) {
+      e.preventDefault();
+      if(!e.offsetX) {
+        e.offsetX = (e.pageX - $(e.target).offset().left);
+        e.offsetY = (e.pageY - $(e.target).offset().top);
       }
+      var x = e.offsetX, y = e.offsetY;
+      for (var i = 0; i < points.length; i+=2) {
+        dis = Math.sqrt(Math.pow(x - points[i], 2) + Math.pow(y - points[i+1], 2));
+        if ( dis < 6 ) {
+          points.splice(i, 2);
+          methods.draw();
+          return false;
+        }
+      }
+      return false;
+    },
 
+    click: function(e) {
+      if (e.which != 1) {
+        return true;
+      }
+      e.preventDefault();
+      if(!e.offsetX) {
+        e.offsetX = (e.pageX - $(e.target).offset().left);
+        e.offsetY = (e.pageY - $(e.target).offset().top);
+      }
+      var x = e.offsetX, y = e.offsetY;
+      var dis, lineDis, insertAt = points.length;
+      for (var i = 0; i < points.length; i+=2) {
+        dis = Math.sqrt(Math.pow(x - points[i], 2) + Math.pow(y - points[i+1], 2));
+        if ( dis < 6 ) {
+          activePoint = i;
+          $(this).bind('mousemove', methods.move);
+          return false;
+        }
+        if (i > 1) {
+          lineDis = dotLineLength(x, y, points[i], points[i+1], points[i-2], points[i-1], true);
+          if (lineDis < 6) {
+            insertAt = i;
+          }
+        }
+      }
+      points.splice(insertAt, 0, x, y);
+      activePoint = insertAt;
+      $(this).bind('mousemove', methods.move);
+
+      methods.draw();
+      return false;
+    },
+
+    draw: function() {
       ctx.drawImage(image,0,0);
 
       if (points.length < 2) {
@@ -205,9 +244,6 @@
       ctx.fill();
 
       methods.record();
-
-
-      return false;
     }
 
   };
