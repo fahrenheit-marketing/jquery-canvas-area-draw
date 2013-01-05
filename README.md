@@ -7,3 +7,5 @@ on which points may be added to create a polygon.
 
 Activates inputs with class `canvas-area` and data attribute
 `data-image-url`. Or activate with `$('input').canvasAreaDraw()`
+
+Demo at [http://iakob.com/canvas-area-draw/demo.html]

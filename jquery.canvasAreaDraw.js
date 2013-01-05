@@ -27,6 +27,7 @@
     image = new Image();
     resize = function() {
       $canvas.attr('height', image.height).attr('width', image.width);
+      draw();
     };
     $(image).load(resize);
     image.src = settings.imageUrl;
