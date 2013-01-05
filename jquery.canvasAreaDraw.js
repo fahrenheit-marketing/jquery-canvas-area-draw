@@ -147,7 +147,7 @@
     };
 
     record = function() {
-      $hidden.val(points.join('m'));
+      $hidden.val(points.join(','));
     };
 
   };
