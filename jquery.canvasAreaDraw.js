@@ -1,21 +1,31 @@
 (function( $ ){
 
   $.fn.canvasAreaDraw = function(options) {
-    var points, activePoint, settings, $hidden, $reset, $canvas, ctx, image;
-    var draw, mousedown, stopdrag, move, resize, reset;
 
-    points = this.val().length ? this.val().split(',') : [];
+    this.each(function(index, element) {
+      init.apply(element, [index, element, options]);
+    });
+
+  }
+
+  var init = function(index, input, options) {
+
+    var points, activePoint, settings;
+    var $hidden, $reset, $canvas, ctx, image;
+    var draw, mousedown, stopdrag, move, resize, reset, rightclick;
 
     settings = $.extend({
-      imageUrl: this.attr('data-image-url')
+      imageUrl: $(this).attr('data-image-url')
     }, options);
 
-    $hidden = $('<input type="hidden">')
-      .attr('name', this.attr("name"))
-      .val(this.val());
-    this.replaceWith($hidden);
+    points = $(this).val().length ? $(this).val().split(',') : [];
 
-    $reset = $('<button type="button" class="btn">Clear</button>');
+    $hidden = $('<input type="hidden">')
+      .attr('name', $(this).attr("name"))
+      .val($(this).val());
+    $(this).replaceWith($hidden);
+
+    $reset = $('<button type="button" class="btn"><i class="icon-trash"></i>Clear</button>');
     $canvas = $('<canvas>');
     ctx = $canvas[0].getContext('2d');
 
@@ -77,8 +87,8 @@
     mousedown = function(e) {
       var x, y, dis, lineDis, insertAt = points.length;
 
-      if (e.which != 1) {
-        return true;
+      if (e.which === 3) {
+        return false;
       }
 
       e.preventDefault();
@@ -128,12 +138,12 @@
       }
 
       ctx.fillStyle = ctx.strokeStyle = 'rgb(200,30,30)';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1;
 
       ctx.beginPath();
       ctx.moveTo(points[0], points[1]);
       for (var i = 0; i < points.length; i+=2) {
-        ctx.fillRect(points[i]-4, points[i+1]-4, 8, 8);
+        ctx.fillRect(points[i]-3, points[i+1]-3, 6, 6);
         if (points.length > 2 && i > 1) {
           ctx.lineTo(points[i], points[i+1]);
         }
