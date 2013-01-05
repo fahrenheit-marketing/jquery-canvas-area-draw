@@ -10,12 +10,19 @@
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome-ie7.css" rel="stylesheet">
   </head>
   <body>
+    <div id="main" class="container">
     <h1>Image Maps Canvas Drawing</h1>
-    <div id="main">
     <form>
-    <input name="coords1" class="canvas-area" type=text size=50 placeholder="Shape Coordinates" data-image-url="http://farm8.staticflickr.com/7259/6956772778_2fa755a228.jpg">
-    <hr>
-    <input name="coords2" class="canvas-area" type=text size=50 placeholder="Shape Coordinates" data-image-url="http://farm6.staticflickr.com/5010/5295769404_1a221cbb5e_z.jpg">
+    <div class="row">
+      <div class="span6">
+      <h2> Image 1 </h2>
+      <textarea rows=3 name="coords1" class="canvas-area input-xxlarge" disabled placeholder="Shape Coordinates" data-image-url="http://farm8.staticflickr.com/7259/6956772778_2fa755a228.jpg"></textarea>
+      </div>
+      <div class="span6">
+      <h2> Image 2 </h2>
+      <textarea rows=3 name="coords2" class="canvas-area input-xxlarge" disabled placeholder="Shape Coordinates" data-image-url="http://farm6.staticflickr.com/5010/5295769404_1a221cbb5e_z.jpg"></textarea>
+      </div>
+    </div>
     </form>
     </div>
     <script language="javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>

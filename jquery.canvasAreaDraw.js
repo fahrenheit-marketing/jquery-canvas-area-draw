@@ -11,19 +11,14 @@
   var init = function(index, input, options) {
 
     var points, activePoint, settings;
-    var $hidden, $reset, $canvas, ctx, image;
-    var draw, mousedown, stopdrag, move, resize, reset, rightclick;
+    var $reset, $canvas, ctx, image;
+    var draw, mousedown, stopdrag, move, resize, reset, rightclick, record;
 
     settings = $.extend({
       imageUrl: $(this).attr('data-image-url')
     }, options);
 
     points = $(this).val().length ? $(this).val().split(',') : [];
-
-    $hidden = $('<input type="hidden">')
-      .attr('name', $(this).attr("name"))
-      .val($(this).val());
-    $(this).replaceWith($hidden);
 
     $reset = $('<button type="button" class="btn"><i class="icon-trash"></i>Clear</button>');
     $canvas = $('<canvas>');
@@ -39,7 +34,7 @@
     $canvas.css({background: 'url('+image.src+')'});
 
     $(document).ready( function() {
-      $hidden.after($canvas, '<br>', $reset);
+      $(input).after('<br>', $canvas, '<br>', $reset);
       $reset.click(reset);
       $canvas.bind('mousedown', mousedown);
       $canvas.bind('contextmenu', rightclick);
@@ -63,6 +58,7 @@
 
     stopdrag = function() {
       $(this).unbind('mousemove');
+      record();
       activePoint = null;
     };
 
@@ -78,6 +74,7 @@
         if ( dis < 6 ) {
           points.splice(i, 2);
           draw();
+          record();
           return false;
         }
       }
@@ -126,6 +123,7 @@
       $(this).bind('mousemove', move);
 
       draw();
+      record();
 
       return false;
     };
@@ -157,13 +155,13 @@
     };
 
     record = function() {
-      $hidden.val(points.join(','));
+      $(input).val(points.join(','));
     };
 
   };
 
   $(document).ready(function() {
-    $('input.canvas-area[data-image-url]').canvasAreaDraw();
+    $('.canvas-area[data-image-url]').canvasAreaDraw();
   });
 
   var dotLineLength = function(x, y, x0, y0, x1, y1, o) {
