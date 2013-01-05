@@ -1,175 +1,62 @@
 (function( $ ){
 
-  var $input, methods, $modal, $canvas, ctx, $overlay, image, points, activePoint, dblclick;
+  $.fn.canvasAreaDraw = function(options) {
+    var points, activePoint, settings, $hidden, $reset, $canvas, ctx, image;
+    var draw, mousedown, stopdrag, move, resize, reset;
 
-  $.fn.canvasAreaDraw = function(method) {
+    points = this.val().length ? this.val().split(',') : [];
 
-    if ( methods[method] ) {
-      return methods[ method ].apply(this, Array.prototype.slice.call( arguments, 1 ));
-    } else if ( typeof method === 'object' || ! method ) {
-      return methods.init.apply( this, arguments );
-    } else {
-      $.error( 'Method ' + method + ' does not exist on jQuery.canvasAreaDraw' );
-    }
+    settings = $.extend({
+      imageUrl: this.attr('data-image-url')
+    }, options);
 
-  };
+    $hidden = $('<input type="hidden">')
+      .attr('name', this.attr("name"))
+      .val(this.val());
+    this.replaceWith($hidden);
 
-  methods = {
+    $reset = $('<button type="button" class="btn">Clear</button>');
+    $canvas = $('<canvas>');
+    ctx = $canvas[0].getContext('2d');
 
-    init: function(options) {
-      if ( ! $('#canvasAreaDrawModal').length ) {
-        // create modal
-        $overlay = $('<div id="canvasAreaDrawOverlay"/>');
-        $modal = $('<div id="canvasAreaDrawModal"/>');
-        var $close = $('<a id="canvasAreaDrawModalClose" href="#">X</a>');
-        var $reset = $('<a id="canvasAreaDrawModalClose" href="#">CLEAR</a>');
-        $canvas = $('<canvas>');
-        $overlay.hide(); $modal.hide();
-        $modal.append( $canvas, $close, $reset );
-        image = new Image();
-        $(image).load(methods.imageLoaded);
+    image = new Image();
+    resize = function() {
+      $canvas.attr('height', image.height).attr('width', image.width);
+    };
+    $(image).load(resize);
+    image.src = settings.imageUrl;
+    if (image.loaded) resize();
+    $canvas.css({background: 'url('+image.src+')'});
 
-        $(document).ready( function() {
-          $('body').append( $overlay, $modal );
-        });
+    $(document).ready( function() {
+      $hidden.after($canvas, '<br>', $reset);
+      $reset.click(reset);
+      $canvas.bind('mousedown', mousedown);
+      $canvas.bind('contextmenu', rightclick);
+      $canvas.bind('mouseup', stopdrag);
+    });
 
-        $close.click(methods.hide);
-        $reset.click(methods.reset);
-        $canvas.bind('mousedown', methods.click);
-        $canvas.bind('contextmenu', methods.rightClick);
-        $canvas.bind('mouseup', methods.stopDrag);
-
-        $reset.css({
-          position: 'absolute',
-          display: 'block',
-          left: '0',
-          'margin-left': '-8px',
-          top: '0',
-          'margin-top': '-8px',
-          padding: '4px',
-          background: '#000',
-          color: '#FFF',
-          'border-radius': '5px',
-          height: '15px',
-          'font-size': '13px',
-          'text-align': 'center',
-          'text-decoration': 'none'
-        });
-        $close.css({
-          position: 'absolute',
-          display: 'block',
-          left: '100%',
-          'margin-left': '-8px',
-          top: '0',
-          'margin-top': '-8px',
-          padding: '4px',
-          background: '#000',
-          color: '#FFF',
-          'border-radius': '50%',
-          width: '15px',
-          height: '15px',
-          'font-size': '13px',
-          'text-align': 'center',
-          'text-decoration': 'none'
-        });
-
-        $overlay.css({
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          width: '100%',
-          height: '100%',
-          background: 'rgba(0,0,0,0.5)'
-        });
-
-        $modal.css({
-          position: 'absolute',
-          background: '#FFF',
-          'border-radius': '10px',
-          padding: '10px'
-        });
-
-      }
-
-      this.focus(function() {
-        methods.show.apply($(this), arguments);
-      });
-    },
-
-    show: function(options) {
-      $input = this;
-      var settings = $.extend({
-        imageUrl: $input.attr('data-image-url')
-      }, options);
-
-      if ($input.val().length > 0) {
-        points = $input.val().split(',');
-      } else points = [];
-
-      if (!settings.imageUrl) {
-        $.error('No image url provided for canvasAreaDrawModal.show.');
-      }
-
-      $(image).attr('src', settings.imageUrl);
-      if (image.complete) {
-        methods.imageLoaded.apply(image);
-      }
-    },
-
-    imageLoaded: function() {
-
-      $modal.show();
-      $overlay.show();
-
-      $canvas.attr('width', this.width)
-        .attr('height', this.height);
-      ctx = $canvas[0].getContext('2d');
-
-      methods.draw();
-
-      var top, left;
-      top = Math.max($(window).height() - $modal.outerHeight(), 0) / 2;
-      left = Math.max($(window).width() - $modal.outerWidth(), 0) / 2;
-
-      $modal.css({
-        top: top + $(window).scrollTop(),
-        left: left + $(window).scrollLeft(),
-      });
-
-    },
-
-    hide: function() {
-      $modal.hide();
-      $overlay.hide();
-    },
-
-    reset: function(e) {
-      ctx.drawImage(image,0,0);
+    reset = function() {
       points = [];
-      methods.record();
-      return false;
-    },
+      draw();
+    };
 
-    record: function() {
-      $input.val(points.join(','));
-    },
-
-    move: function(e) {
+    move = function(e) {
       if(!e.offsetX) {
         e.offsetX = (e.pageX - $(e.target).offset().left);
         e.offsetY = (e.pageY - $(e.target).offset().top);
       }
       points[activePoint] = e.offsetX;
       points[activePoint+1] = e.offsetY;
-      methods.draw.apply(this);
-    },
+      draw();
+    };
 
-    stopDrag: function() {
+    stopdrag = function() {
       $(this).unbind('mousemove');
       activePoint = null;
-    },
+    };
 
-    rightClick: function(e) {
+    rightclick = function(e) {
       e.preventDefault();
       if(!e.offsetX) {
         e.offsetX = (e.pageX - $(e.target).offset().left);
@@ -180,48 +67,61 @@
         dis = Math.sqrt(Math.pow(x - points[i], 2) + Math.pow(y - points[i+1], 2));
         if ( dis < 6 ) {
           points.splice(i, 2);
-          methods.draw();
+          draw();
           return false;
         }
       }
       return false;
-    },
+    };
 
-    click: function(e) {
+    mousedown = function(e) {
+      var x, y, dis, lineDis, insertAt = points.length;
+
       if (e.which != 1) {
         return true;
       }
+
       e.preventDefault();
       if(!e.offsetX) {
         e.offsetX = (e.pageX - $(e.target).offset().left);
         e.offsetY = (e.pageY - $(e.target).offset().top);
       }
-      var x = e.offsetX, y = e.offsetY;
-      var dis, lineDis, insertAt = points.length;
+      x = e.offsetX; y = e.offsetY;
+
       for (var i = 0; i < points.length; i+=2) {
         dis = Math.sqrt(Math.pow(x - points[i], 2) + Math.pow(y - points[i+1], 2));
         if ( dis < 6 ) {
           activePoint = i;
-          $(this).bind('mousemove', methods.move);
+          $(this).bind('mousemove', move);
           return false;
         }
+      }
+
+      for (var i = 0; i < points.length; i+=2) {
         if (i > 1) {
-          lineDis = dotLineLength(x, y, points[i], points[i+1], points[i-2], points[i-1], true);
+          lineDis = dotLineLength(
+            x, y,
+            points[i], points[i+1],
+            points[i-2], points[i-1],
+            true
+          );
           if (lineDis < 6) {
             insertAt = i;
           }
         }
       }
+
       points.splice(insertAt, 0, x, y);
       activePoint = insertAt;
-      $(this).bind('mousemove', methods.move);
+      $(this).bind('mousemove', move);
 
-      methods.draw();
+      draw();
+
       return false;
-    },
+    };
 
-    draw: function() {
-      ctx.drawImage(image,0,0);
+    draw = function() {
+      ctx.canvas.width = ctx.canvas.width;
 
       if (points.length < 2) {
         return false;
@@ -243,10 +143,15 @@
       ctx.fillStyle = 'rgba(200,0,0,0.4)';
       ctx.fill();
 
-      methods.record();
-    }
+      record();
+    };
+
+    record = function() {
+      $hidden.val(points.join('m'));
+    };
 
   };
+
   $(document).ready(function() {
     $('input.canvas-area[data-image-url]').canvasAreaDraw();
   });
