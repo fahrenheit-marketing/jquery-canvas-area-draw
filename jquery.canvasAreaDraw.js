@@ -18,7 +18,13 @@
       imageUrl: $(this).attr('data-image-url')
     }, options);
 
-    points = $(this).val().length ? $(this).val().split(',') : [];
+    if ( $(this).val().length ) {
+      points = $(this).val().split(',').map(function(point) {
+        return parseInt(point, 10);
+      });
+    } else {
+      points = [];
+    }
 
     $reset = $('<button type="button" class="btn"><i class="icon-trash"></i>Clear</button>');
     $canvas = $('<canvas>');
@@ -52,8 +58,8 @@
         e.offsetX = (e.pageX - $(e.target).offset().left);
         e.offsetY = (e.pageY - $(e.target).offset().top);
       }
-      points[activePoint] = e.offsetX;
-      points[activePoint+1] = e.offsetY;
+      points[activePoint] = Math.round(e.offsetX);
+      points[activePoint+1] = Math.round(e.offsetY);
       draw();
     };
 
@@ -118,8 +124,9 @@
           }
         }
       }
+      console.log(points);
 
-      points.splice(insertAt, 0, x, y);
+      points.splice(insertAt, 0, Math.round(x), Math.round(y));
       activePoint = insertAt;
       $(this).bind('mousemove', move);
 
