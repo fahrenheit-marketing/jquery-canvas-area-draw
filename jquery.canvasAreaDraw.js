@@ -135,22 +135,24 @@
       if (points.length < 2) {
         return false;
       }
-
-      ctx.fillStyle = ctx.strokeStyle = 'rgb(200,30,30)';
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = 'rgb(255,255,255)'
+      ctx.strokeStyle = 'rgb(255,20,20)';
       ctx.lineWidth = 1;
 
       ctx.beginPath();
       ctx.moveTo(points[0], points[1]);
       for (var i = 0; i < points.length; i+=2) {
-        ctx.fillRect(points[i]-3, points[i+1]-3, 6, 6);
+        ctx.fillRect(points[i]-2, points[i+1]-2, 4, 4);
+        ctx.strokeRect(points[i]-2, points[i+1]-2, 4, 4);
         if (points.length > 2 && i > 1) {
           ctx.lineTo(points[i], points[i+1]);
         }
       }
       ctx.closePath();
-      ctx.stroke();
-      ctx.fillStyle = 'rgba(200,0,0,0.4)';
+      ctx.fillStyle = 'rgba(255,0,0,0.3)';
       ctx.fill();
+      ctx.stroke();
 
       record();
     };
