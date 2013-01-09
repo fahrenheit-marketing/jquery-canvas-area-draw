@@ -1,4 +1,4 @@
-jQuer ImageMap Area Canvas Editor
+jQuery ImageMap Area Canvas Editor
 ======================
 
 jQuery plugin to create imagemap area polygon coordinates. 
