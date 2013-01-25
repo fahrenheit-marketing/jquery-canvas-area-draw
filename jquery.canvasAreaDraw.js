@@ -124,7 +124,6 @@
           }
         }
       }
-      console.log(points);
 
       points.splice(insertAt, 0, Math.round(x), Math.round(y));
       activePoint = insertAt;
