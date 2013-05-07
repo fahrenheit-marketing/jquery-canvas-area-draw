@@ -2,7 +2,7 @@
   "name": "canvas-area-draw",
 	"title": "Canvas Image Map Area Editor", 
 	"description": "Create and edit image map area polygons in a canvas-based GUI that replaces form elements.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"keywords": [
 		"canvas",
 		"img",
