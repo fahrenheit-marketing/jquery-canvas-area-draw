@@ -1,0 +1,32 @@
+{
+  "name": "canvas-area-draw",
+	"title": "Canvas Image Map Area Editor", 
+	"description": "Create and edit image map area polygons in a canvas-based GUI that replaces form elements.",
+	"version": "1.0.0",
+	"keywords": [
+		"canvas",
+		"img",
+		"image",
+		"map",
+		"polygon",
+		"poly",
+		"input"
+	],
+	"author": {
+		"name": "Jacob Williams",
+		"url": "https://github.com/singlow"
+	},
+	"licenses": [
+		{
+			"type":"MIT",
+			"url": "https://raw.github.com/fahrenheit-marketing/jquery-canvas-area-draw/master/LICENSE.txt"
+		}
+	],
+	"dependencies": {
+		"jquery": ">=1.6"
+	},
+	"docs": "https://github.com/fahrenheit-marketing/jquery-canvas-area-draw",
+	"download": "https://github.com/fahrenheit-marketing/jquery-canvas-area-draw",
+  "homepage": "https://github.com/fahrenheit-marketing/jquery-canvas-area-draw",
+  "demo": "http://iakob.com/canvas-area-draw/demo.html"
+}
