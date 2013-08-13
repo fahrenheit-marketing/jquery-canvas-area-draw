@@ -9,3 +9,27 @@ Activates inputs with class `canvas-area` and data attribute
 `data-image-url`. Or activate with `$('input').canvasAreaDraw(options)`
 
 Demo at [http://iakob.com/canvas-area-draw/demo.html]
+
+### Examples
+
+Include the javascript file in your page after jQuery and add class and data parameters to your inputs or textareas:
+
+`<textarea class="canvas-area" data-image-url="http://example.com/image.png"></textarea>`
+
+Or using Javascript, include the script after jQuery and activate it on any selection of text inputs or textarea elements. If you are applying it to multiple elements, you may wish to still use the `data-image-url` to set a different image for each input. If you include the `imgUrl` property in the options object, the same image will be applied to all elements in the selection.
+
+```
+<input type="text" id="polygon">
+
+<script>
+(function(jQuery) {
+  $('#polygon').canvasAreaDraw({
+    imgUrl: "http://example.com/image.png"
+  });
+})(jQuery);
+</script>
+```
+
+
+
+
