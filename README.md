@@ -30,6 +30,8 @@ Or using Javascript, include the script after jQuery and activate it on any sele
 </script>
 ```
 
+_You may want to use a document load or ready event to make sure your elements are already added to the DOM before you invoke the plugin._
+
 
 
 
