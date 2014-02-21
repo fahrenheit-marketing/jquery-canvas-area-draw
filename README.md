@@ -24,7 +24,7 @@ Or using Javascript, include the script after jQuery and activate it on any sele
 <script>
 (function(jQuery) {
   $('#polygon').canvasAreaDraw({
-    imgUrl: "http://example.com/image.png"
+    imageUrl: "http://example.com/image.png"
   });
 })(jQuery);
 </script>
