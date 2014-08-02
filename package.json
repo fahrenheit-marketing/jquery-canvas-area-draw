@@ -1,6 +1,6 @@
 {
   "name": "jquery.canvas-area-draw",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Use a canvas based drawing tool to create image map coordinates.",
   "repository": {
     "type": "git",
