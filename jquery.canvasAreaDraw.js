@@ -167,6 +167,17 @@
       $(input).val(points.join(','));
     };
 
+    $(input).on('change', function() {
+      if ( $(this).val().length ) {
+        points = $(this).val().split(',').map(function(point) {
+          return parseInt(point, 10);
+        });
+      } else {
+        points = [];
+      }
+      draw();
+    });
+
   };
 
   $(document).ready(function() {
