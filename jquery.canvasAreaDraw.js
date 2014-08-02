@@ -43,9 +43,9 @@
     $(document).ready( function() {
       $(input).after('<br>', $canvas, '<br>', $reset);
       $reset.click(reset);
-      $canvas.bind('mousedown', mousedown);
-      $canvas.bind('contextmenu', rightclick);
-      $canvas.bind('mouseup', stopdrag);
+      $canvas.on('mousedown', mousedown);
+      $canvas.on('contextmenu', rightclick);
+      $canvas.on('mouseup', stopdrag);
     });
 
     reset = function() {
@@ -64,7 +64,7 @@
     };
 
     stopdrag = function() {
-      $(this).unbind('mousemove');
+      $(this).off('mousemove');
       record();
       activePoint = null;
     };
@@ -106,7 +106,7 @@
         dis = Math.sqrt(Math.pow(x - points[i], 2) + Math.pow(y - points[i+1], 2));
         if ( dis < 6 ) {
           activePoint = i;
-          $(this).bind('mousemove', move);
+          $(this).on('mousemove', move);
           return false;
         }
       }
@@ -127,7 +127,7 @@
 
       points.splice(insertAt, 0, Math.round(x), Math.round(y));
       activePoint = insertAt;
-      $(this).bind('mousemove', move);
+      $(this).on('mousemove', move);
 
       draw();
       record();
@@ -138,6 +138,7 @@
     draw = function() {
       ctx.canvas.width = ctx.canvas.width;
 
+      record();
       if (points.length < 2) {
         return false;
       }
@@ -160,7 +161,6 @@
       ctx.fill();
       ctx.stroke();
 
-      record();
     };
 
     record = function() {
